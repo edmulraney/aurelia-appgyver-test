@@ -10,7 +10,7 @@ module.exports = {
   styles: 'styles/**/*.css',
   output: appgyverRoot,
   appgyverDist: appgyverRoot + 'dist/',
-  aureliaSkeleton: 'http://github.com/aurelia/skeleton-navigation.git',
+  aureliaSkeletonUrl: 'https://github.com/aurelia/skeleton-navigation.git',
   aureliaGulpTasks: aureliaRoot + '/build/tasks/',
   appgyverGulpTask: 'src/'
 };

@@ -1,61 +1,50 @@
 var gulp = require('gulp');
 var runSequence = require('run-sequence');
 var changed = require('gulp-changed');
-var plumber = require('gulp-plumber');
 var paths = require('../paths');
 var exec = require('child_process').exec;
+var install = require("gulp-install");
 
-gulp.task('copy-appgyver-gulp-task', function () {
-  exec('cp ' + paths.appgyverGulpTask + ' ' paths.aureliaGulpTasks, function (err) {
-    cb(err);
+
+gulp.task('copy-appgyver-gulp-task', function (cb) {
+  exec('cp ' + paths.appgyverGulpTask + ' ' + paths.aureliaGulpTasks, function (err) {
+    console.log(err);
+    // cb(err);
   });
 });
 
-gulp.task('build-git', function (cb) {
-  exec('git clone ' + paths.aureliaSkeletonUrl + ' app', function (err) {
-    exec('cd app && npm install && jspm install -y && gulp build', function (ierr) {
-      cb(ierr);
-    });
-    cb(err);
+gulp.task('clone-git', function (cb) {
+  exec('git clone "' + paths.aureliaSkeletonUrl + '" ../app', function (err) {
+    console.log(err);
+    // cb(err);
   });
 });
 
-// transpiles changed es6 files to SystemJS format
-// the plumber() call prevents 'pipe breaking' caused
-// by errors from other gulp plugins
-// https://www.npmjs.com/package/gulp-plumber
-gulp.task('build-system', function () {
-  return gulp.src(paths.source)
-    .pipe(plumber({errorHandler: notify.onError("Error: <%= error.message %>")}))
-    .pipe(changed(paths.output, {extension: '.js'}))
-    .pipe(gulp.dest(paths.output))
-    .pipe(gulp.dest(paths.appgyverSource));
+gulp.task('npm-install', function() {
+  console.log('installing packages..');
+
+  gulp.src('../app/package.json')
+      .pipe(install());
 });
 
-// copies changed html files to the output directory
-gulp.task('build-html', function () {
-  return gulp.src(paths.html)
-    .pipe(changed(paths.output, {extension: '.html'}))
-    .pipe(gulp.dest(paths.output))
-    .pipe(gulp.dest(paths.appgyverSource));
+
+  // exec('gulp build', function (ierr) {
+  //   console.log(ierr);
+  //   // cb(ierr);
+  // });
+// });
+
+gulp.task('jspm-install', function () {
+  exec('jspm install -y', function (ierr) {
+    console.log(ierr);
+    // cb(ierr);
+  });
 });
 
-// copies changed css files to the output directory
-gulp.task('build-css', function () {
-  return gulp.src(paths.css)
-    .pipe(changed(paths.output, {extension: '.css'}))
-    .pipe(gulp.dest(paths.output))
-    .pipe(gulp.dest(paths.appgyverSource));
+gulp.task('clean', function () {
+  // gulp.del()
 });
 
-// this task calls the clean task (located
-// in ./clean.js), then runs the build-system
-// and build-html tasks in parallel
-// https://www.npmjs.com/package/gulp-run-sequence
 gulp.task('build', function(callback) {
-  return runSequence(
-    'clean',
-    ['build-system', 'build-html', 'build-css'],
-    callback
-  );
+  return runSequence('clean', 'build-git', 'npm-install', 'jspm-install', 'copy-appgyver-gulp-task', callback);
 });
