@@ -1,8 +1,7 @@
 # aurelia-appgyver-test
 
-Clone this package into the root of a Steroids application to turn it into an Aurelia Steroids app.
+Test repo
 
-e.g.
 
 ```steroids create myapp```
 
